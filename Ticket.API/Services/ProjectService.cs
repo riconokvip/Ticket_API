@@ -5,9 +5,10 @@
         /// <summary>
         /// Lấy danh sách dự án
         /// </summary>
+        /// <param name="workSpaceId">Id không gian công việc</param>
         /// <param name="model">Bộ lọc</param>
         /// <returns></returns>
-        Task<ListProjectResponseModel> GetProjects(ProjectRequestModel model);
+        Task<ListProjectResponseModel> GetProjects(ProjectRequestModel model, string workSpaceId);
 
         /// <summary>
         /// Thêm mới dự án
@@ -49,9 +50,9 @@
             _mapper = mapper;
         }
 
-        public async Task<ListProjectResponseModel> GetProjects(ProjectRequestModel model)
+        public async Task<ListProjectResponseModel> GetProjects(ProjectRequestModel model, string workSpaceId)
         {
-            var projects = _context.Projects.Where(_ => _.IsDeleted == false);
+            var projects = _context.Projects.Where(_ => _.WorkSpaceId == workSpaceId && _.IsDeleted == false);
             var users = _context.Users.Where(_ => _.IsDeleted == false);
 
             var query = from p in projects

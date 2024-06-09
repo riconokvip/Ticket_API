@@ -17,12 +17,13 @@
         /// <summary>
         /// Lấy danh sách dự án
         /// </summary>
+        /// <param name="workSpaceId">Id không gian công việc</param>
         /// <param name="model">Bộ lọc</param>
         /// <returns></returns>
-        [HttpGet]
-        public async Task<BaseResponseWithPagination<List<ProjectResponseModel>>> GetAllProject([FromQuery] ProjectRequestModel model)
+        [HttpGet("{workSpaceId}")]
+        public async Task<BaseResponseWithPagination<List<ProjectResponseModel>>> GetAllProject([FromRoute] string workSpaceId, [FromQuery] ProjectRequestModel model)
         {
-            var res = await _projectService.GetProjects(model);
+            var res = await _projectService.GetProjects(model, workSpaceId);
             return SuccessWithPagination(res.Pagination, res.Projects);
         }
 
