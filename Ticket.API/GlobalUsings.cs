@@ -27,5 +27,6 @@ global using Ticket.API.Models;
 global using Ticket.API.Models.Auths;
 global using Ticket.API.Models.WorkSpaces;
 global using Ticket.API.Models.Projects;
+global using Ticket.API.Models.WorkSpaceMembers;
 // Services
 global using Ticket.API.Services;
