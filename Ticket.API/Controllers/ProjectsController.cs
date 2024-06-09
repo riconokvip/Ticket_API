@@ -53,6 +53,32 @@
         }
 
         /// <summary>
+        /// Cập nhật thời hạn dự án
+        /// </summary>
+        /// <param name="projectId">Id dự án</param>
+        /// <param name="model">Dữ liệu cập nhật</param>
+        /// <returns></returns>
+        [HttpPatch("deadline/{projectId}")]
+        public async Task<BaseResponse> UpdateExistProject([FromRoute] string projectId, [FromBody] ProjectUpdateEstimateTimeRequestModel model)
+        {
+            await _projectService.UpdateEstimateTimeProject(model, User.Identity.Name, projectId);
+            return Success();
+        }
+
+        /// <summary>
+        /// Cập nhật độ ưu tiên dự án
+        /// </summary>
+        /// <param name="projectId">Id dự án</param>
+        /// <param name="model">Dữ liệu cập nhật</param>
+        /// <returns></returns>
+        [HttpPatch("priority/{projectId}")]
+        public async Task<BaseResponse> UpdateExistProject([FromRoute] string projectId, [FromBody] ProjectUpdatePriorityRequestModel model)
+        {
+            await _projectService.UpdatePriorityProject(model, User.Identity.Name, projectId);
+            return Success();
+        }
+
+        /// <summary>
         /// Xóa dự án
         /// </summary>
         /// <param name="projectId">Id dự án</param>

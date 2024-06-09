@@ -11,7 +11,7 @@
         /// <summary>
         /// Id không gian công việc
         /// </summary>
-        [StringExtension("Id không gian công việc")]
+        [StringExtension("Id không gian công việc", maxSize: 100)]
         public string WorkSpaceId { get; set; }
 
         /// <summary>

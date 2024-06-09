@@ -28,6 +28,24 @@
         Task UpdateProject(ProjectUpdateMapRequestModel model, string action, string projectId);
 
         /// <summary>
+        /// Cập nhật thời hạn dự án
+        /// </summary>
+        /// <param name="model">Dữ liệu cập nhật</param>
+        /// <param name="action">Người thực hiện</param>
+        /// <param name="projectId">Id dự án</param>
+        /// <returns></returns>
+        Task UpdateEstimateTimeProject(ProjectUpdateEstimateTimeRequestModel model, string action, string projectId);
+
+        /// <summary>
+        /// Cập nhật độ ưu tiên dự án
+        /// </summary>
+        /// <param name="model">Dữ liệu cập nhật</param>
+        /// <param name="action">Người thực hiện</param>
+        /// <param name="projectId">Id dự án</param>
+        /// <returns></returns>
+        Task UpdatePriorityProject(ProjectUpdatePriorityRequestModel model, string action, string projectId);
+
+        /// <summary>
         /// Xóa dự án
         /// </summary>
         /// <param name="projectId">Id dự án</param>
@@ -158,6 +176,36 @@
             entity.Id = projectId;
             entity.WorkSpaceId = project.WorkSpaceId;
             await _repo.Update(entity, action);
+        }
+
+        public async Task UpdateEstimateTimeProject(ProjectUpdateEstimateTimeRequestModel model, string action, string projectId)
+        {
+            var project = await _context.Projects
+                    .Where(_ =>
+                        _.Id == projectId &&
+                        _.IsDeleted == false)
+                    .FirstOrDefaultAsync();
+
+            if (project != null)
+                throw new BaseException(ErrorCodes.CONFLICT, HttpCodes.CONFLICT, $"{_name} chưa tồn tại");
+
+            project.EstimateTime = model.EstimateTime;
+            await _repo.Update(project, action);
+        }
+
+        public async Task UpdatePriorityProject(ProjectUpdatePriorityRequestModel model, string action, string projectId)
+        {
+            var project = await _context.Projects
+                    .Where(_ =>
+                        _.Id == projectId &&
+                        _.IsDeleted == false)
+                    .FirstOrDefaultAsync();
+
+            if (project != null)
+                throw new BaseException(ErrorCodes.CONFLICT, HttpCodes.CONFLICT, $"{_name} chưa tồn tại");
+
+            project.ProjectPriority = model.Priority;
+            await _repo.Update(project, action);
         }
 
         public async Task DeleteProject(string projectId, string action)
