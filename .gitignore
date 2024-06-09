@@ -1,0 +1,10 @@
+.vs/
+*/obj/
+*/bin/
+*.user
+*.user
+*.user
+*.pubxml
+/Tohi.CMS.API/Properties/PublishProfiles/*
+/Expense.API/efpt.config.json
+/Expense.API/CodeTemplates
