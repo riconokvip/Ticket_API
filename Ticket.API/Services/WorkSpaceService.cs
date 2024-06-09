@@ -138,6 +138,7 @@
                         Id = Guid.NewGuid().ToString(),
                         MemberId = action,
                         WorkSpaceId = entity.Id,
+                        MemberType = WorkSpaceMemberEnums.Admin,
                         CreatedAt = ApplicationExtensions.NOW,
                         CreatedBy = action
                     };
