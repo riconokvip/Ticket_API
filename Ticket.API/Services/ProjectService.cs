@@ -154,9 +154,40 @@
             if (workSpace == null)
                 throw new BaseException(ErrorCodes.CONFLICT, HttpCodes.CONFLICT, $"Không gian công việc không tồn tại");
 
-            var entity = _mapper.Map<ProjectEntities>(model);
-            entity.Id = Guid.NewGuid().ToString();
-            await _repo.Insert(entity, action);
+            using (var transaction = _context.Database.BeginTransaction())
+            {
+                try
+                {
+                    var entity = _mapper.Map<ProjectEntities>(model);
+                    entity.Id = Guid.NewGuid().ToString();
+                    entity.CreatedAt = ApplicationExtensions.NOW;
+                    entity.CreatedBy = action;
+                    _context.Add(entity);
+
+                    var member = new ProjectMemberEntities
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        MemberId = action,
+                        ProjectId = entity.Id,
+                        MemberType = ProjectMemberEnums.Admin,
+                        CreatedAt = ApplicationExtensions.NOW,
+                        CreatedBy = action
+                    };
+                    _context.Add(member);
+
+                    _context.SaveChanges();
+                    transaction.Commit();
+                }
+                catch (Exception)
+                {
+                    transaction.Rollback();
+                    throw;
+                }
+                finally
+                {
+                    transaction.Dispose();
+                }
+            }
         }
 
         public async Task UpdateProject(ProjectUpdateMapRequestModel model, string action, string projectId)
