@@ -20,7 +20,7 @@
         /// <param name="model">Bộ lọc</param>
         /// <returns></returns>
         [HttpGet]
-        public async Task<BaseResponseWithPagination<List<WorkSpaceResponseModel>>> Login([FromQuery] WorkSpaceRequestModel model)
+        public async Task<BaseResponseWithPagination<List<WorkSpaceResponseModel>>> GetAllWorkSpace([FromQuery] WorkSpaceRequestModel model)
         {
             var res = await _workSpaceService.GetWorkSpaces(model);
             return SuccessWithPagination(res.Pagination, res.WorkSpaces);
