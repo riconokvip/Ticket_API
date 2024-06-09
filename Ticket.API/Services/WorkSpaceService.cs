@@ -67,7 +67,9 @@
                                 new RefUserResponseModel
                                 {
                                     UserId = user.Id,
-                                    WorkName = user.WorkName
+                                    WorkName = user.WorkName,
+                                    IsAdmin = user.IsAdmin,
+                                    Level = user.IsAdmin ? "Quản trị viên" : user.Level
                                 }
                             },
                             CreatedUser = user == null ? null : new CreatedByResponseModel
@@ -121,9 +123,39 @@
             if (workSpace != null)
                 throw new BaseException(ErrorCodes.CONFLICT, HttpCodes.CONFLICT, $"{_name} đã tồn tại");
 
-            var entity = _mapper.Map<WorkSpaceEntities>(model);
-            entity.Id = Guid.NewGuid().ToString();
-            await _repo.Insert(entity, action);
+            using (var transaction = _context.Database.BeginTransaction())
+            {
+                try
+                {
+                    var entity = _mapper.Map<WorkSpaceEntities>(model);
+                    entity.Id = Guid.NewGuid().ToString();
+                    entity.CreatedAt = ApplicationExtensions.NOW;
+                    entity.CreatedBy = action;
+                    _context.Add(entity);
+
+                    var member = new WorkSpaceMemberEntities
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        MemberId = action,
+                        WorkSpaceId = entity.Id,
+                        CreatedAt = ApplicationExtensions.NOW,
+                        CreatedBy = action
+                    };
+                    _context.Add(member);
+
+                    _context.SaveChanges();
+                    transaction.Commit();
+                }
+                catch (Exception)
+                {
+                    transaction.Rollback();
+                    throw;
+                }
+                finally
+                {
+                    transaction.Dispose();
+                }
+            }
         }
 
         public async Task UpdateWorkSpace(WorkSpaceUpdateMapRequestModel model, string action, string workSpaceId)
