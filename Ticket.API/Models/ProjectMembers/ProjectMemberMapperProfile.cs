@@ -4,7 +4,7 @@
     {
         public ProjectMemberMapperProfile()
         {
-
+            CreateMap<ProjectAddMemberRequestModel, ProjectMemberEntities>().ReverseMap();
         }
     }
 }
