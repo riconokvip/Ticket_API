@@ -85,6 +85,15 @@
                             Tasks = 10,
                             EstimateTime = p.EstimateTime,
                             CreatedAt = p.CreatedAt,
+                            Members = new List<RefUserResponseModel>{
+                                user == null ? null : new RefUserResponseModel
+                                {
+                                    UserId = user.Id,
+                                    WorkName = user.WorkName,
+                                    IsAdmin = user.IsAdmin,
+                                    Level = user.IsAdmin ? "Quản trị viên" : user.Level
+                                }
+                            },
                             CreatedUser = user == null ? null : new CreatedByResponseModel
                             {
                                 UserId = user.Id,
