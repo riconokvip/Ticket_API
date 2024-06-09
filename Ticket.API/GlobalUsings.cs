@@ -26,5 +26,6 @@ global using Ticket.API.JwtAuthentications;
 global using Ticket.API.Models;
 global using Ticket.API.Models.Auths;
 global using Ticket.API.Models.WorkSpaces;
+global using Ticket.API.Models.Projects;
 // Services
 global using Ticket.API.Services;
