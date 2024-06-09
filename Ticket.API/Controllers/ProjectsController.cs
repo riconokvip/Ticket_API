@@ -20,7 +20,7 @@
         /// <param name="model">Bộ lọc</param>
         /// <returns></returns>
         [HttpGet]
-        public async Task<BaseResponseWithPagination<List<ProjectResponseModel>>> Login([FromQuery] ProjectRequestModel model)
+        public async Task<BaseResponseWithPagination<List<ProjectResponseModel>>> GetAllProject([FromQuery] ProjectRequestModel model)
         {
             var res = await _projectService.GetProjects(model);
             return SuccessWithPagination(res.Pagination, res.Projects);
