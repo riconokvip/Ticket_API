@@ -5,9 +5,10 @@
         /// <summary>
         /// Lấy danh sách thành viên trong không gian làm việc
         /// </summary>
+        /// <param name="workSpaceId">Id không gian công việc</param>
         /// <param name="model">Bộ lọc</param>
         /// <returns></returns>
-        Task<ListWorkSpaceMemberResponseModel> GetWorkSpaceMembers(WorkSpaceMemberRequestModel model);
+        Task<ListWorkSpaceMemberResponseModel> GetWorkSpaceMembers(WorkSpaceMemberRequestModel model, string workSpaceId);
 
         /// <summary>
         /// Thêm thành viên vào không gian làm việc
@@ -40,9 +41,9 @@
             _mapper = mapper;
         }
 
-        public async Task<ListWorkSpaceMemberResponseModel> GetWorkSpaceMembers(WorkSpaceMemberRequestModel model)
+        public async Task<ListWorkSpaceMemberResponseModel> GetWorkSpaceMembers(WorkSpaceMemberRequestModel model, string workSpaceId)
         {
-            var workSpaceMembers = _context.WorkSpaceMembers.Where(_ => _.IsDeleted == false);
+            var workSpaceMembers = _context.WorkSpaceMembers.Where(_ => _.WorkSpaceId == workSpaceId && _.IsDeleted == false);
             var users = _context.Users.Where(_ => _.IsDeleted == false);
 
             var query = from w in workSpaceMembers

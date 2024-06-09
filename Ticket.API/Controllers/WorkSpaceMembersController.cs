@@ -17,10 +17,12 @@
         /// </summary>
         /// <param name="model">Bộ lọc</param>
         /// <returns></returns>
-        [HttpGet]
-        public async Task<BaseResponseWithPagination<List<WorkSpaceMemberResponseModel>>> GetAllMemberInWorkSpace([FromQuery] WorkSpaceMemberRequestModel model)
+        [HttpGet("{workSpaceId}")]
+        public async Task<BaseResponseWithPagination<List<WorkSpaceMemberResponseModel>>> GetAllMemberInWorkSpace(
+            [FromRoute] string workSpaceId,
+            [FromQuery] WorkSpaceMemberRequestModel model)
         {
-            var res = await _workSpaceMemberService.GetWorkSpaceMembers(model);
+            var res = await _workSpaceMemberService.GetWorkSpaceMembers(model, workSpaceId);
             return SuccessWithPagination(res.Pagination, res.Members);
         }
 
