@@ -43,13 +43,13 @@
 
         public async Task<ListWorkSpaceMemberResponseModel> GetWorkSpaceMembers(WorkSpaceMemberRequestModel model, string workSpaceId)
         {
-            var project = await _context.WorkSpaces
+            var workSpace = await _context.WorkSpaces
                     .Where(_ =>
                         _.Id == workSpaceId &&
                         _.IsDeleted == false)
                     .FirstOrDefaultAsync();
 
-            if (project == null)
+            if (workSpace == null)
                 throw new BaseException(ErrorCodes.NOT_FOUND, HttpCodes.NOT_FOUND, $"Không gian làm việc không tồn tại");
 
             var workSpaceMembers = _context.WorkSpaceMembers.Where(_ => _.WorkSpaceId == workSpaceId && _.IsDeleted == false);

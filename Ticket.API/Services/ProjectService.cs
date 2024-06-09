@@ -70,13 +70,13 @@
 
         public async Task<ListProjectResponseModel> GetProjects(ProjectRequestModel model, string workSpaceId)
         {
-            var project = await _context.WorkSpaces
+            var workSpace = await _context.WorkSpaces
                     .Where(_ =>
                         _.Id == workSpaceId &&
                         _.IsDeleted == false)
                     .FirstOrDefaultAsync();
 
-            if (project == null)
+            if (workSpace == null)
                 throw new BaseException(ErrorCodes.NOT_FOUND, HttpCodes.NOT_FOUND, $"Không gian làm việc chứa dự án không tồn tại");
 
             var projects = _context.Projects.Where(_ => _.WorkSpaceId == workSpaceId && _.IsDeleted == false);
@@ -144,6 +144,15 @@
 
         public async Task CreateProject(ProjectCreateMapRequestModel model, string action)
         {
+            var workSpace = await _context.WorkSpaces
+                    .Where(_ =>
+                        _.Id == model.WorkSpaceId &&
+                        _.IsDeleted == false)
+                    .FirstOrDefaultAsync();
+
+            if (workSpace == null)
+                throw new BaseException(ErrorCodes.NOT_FOUND, HttpCodes.NOT_FOUND, $"Không gian công việc không tồn tại");
+
             var project = await _context.Projects
                     .Where(_ =>
                         _.ProjectName.ToLower().Contains(model.ProjectName.ToLower()) &&
@@ -153,15 +162,6 @@
 
             if (project != null)
                 throw new BaseException(ErrorCodes.CONFLICT, HttpCodes.CONFLICT, $"{_name} đã tồn tại");
-
-            var workSpace = await _context.WorkSpaces
-                    .Where(_ =>
-                        _.Id == model.WorkSpaceId &&
-                        _.IsDeleted == false)
-                    .FirstOrDefaultAsync();
-
-            if (workSpace == null)
-                throw new BaseException(ErrorCodes.NOT_FOUND, HttpCodes.NOT_FOUND, $"Không gian công việc không tồn tại");
 
             using (var transaction = _context.Database.BeginTransaction())
             {
@@ -207,7 +207,7 @@
                         _.IsDeleted == false)
                     .FirstOrDefaultAsync();
 
-            if (project != null)
+            if (project == null)
                 throw new BaseException(ErrorCodes.NOT_FOUND, HttpCodes.NOT_FOUND, $"{_name} chưa tồn tại");
 
             var projectDup = await _context.Projects
@@ -235,7 +235,7 @@
                         _.IsDeleted == false)
                     .FirstOrDefaultAsync();
 
-            if (project != null)
+            if (project == null)
                 throw new BaseException(ErrorCodes.NOT_FOUND, HttpCodes.NOT_FOUND, $"{_name} chưa tồn tại");
 
             project.EstimateTime = model.EstimateTime;
@@ -250,7 +250,7 @@
                         _.IsDeleted == false)
                     .FirstOrDefaultAsync();
 
-            if (project != null)
+            if (project == null)
                 throw new BaseException(ErrorCodes.NOT_FOUND, HttpCodes.NOT_FOUND, $"{_name} chưa tồn tại");
 
             project.ProjectPriority = model.Priority;

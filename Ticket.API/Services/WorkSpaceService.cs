@@ -167,7 +167,7 @@
                         _.IsDeleted == false)
                     .FirstOrDefaultAsync();
 
-            if (workSpace != null)
+            if (workSpace == null)
                 throw new BaseException(ErrorCodes.NOT_FOUND, HttpCodes.NOT_FOUND, $"{_name} chưa tồn tại");
 
             var workSpaceDup = await _context.WorkSpaces
