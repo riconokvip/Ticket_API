@@ -33,6 +33,16 @@
         public DateTime CreatedAt { get; set; }
 
         /// <summary>
+        /// Thành viên
+        /// </summary>
+        public List<RefUserResponseModel> Members { get; set; } = [];
+
+        /// <summary>
+        /// Số lượng thành viên
+        /// </summary>
+        public long TotalMember => Members.Count;
+
+        /// <summary>
         /// Người tạo
         /// </summary>
         public CreatedByResponseModel CreatedUser { get; set; }

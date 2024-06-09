@@ -1,5 +1,18 @@
 ﻿namespace Ticket.API.Models
 {
+    public class RefUserResponseModel
+    {
+        /// <summary>
+        /// Id người dùng
+        /// </summary>
+        public string UserId { get; set; }
+
+        /// <summary>
+        /// Tên công việc
+        /// </summary>
+        public string WorkName { get; set; }
+    }
+
     public class CreatedByResponseModel
     {
         /// <summary>

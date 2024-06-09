@@ -63,6 +63,13 @@
                             WorkSpaceName = w.WorkSpaceName,
                             WorkSpaceColor = w.WorkSpaceColor,
                             CreatedAt = w.CreatedAt,
+                            Members = new List<RefUserResponseModel>{
+                                new RefUserResponseModel
+                                {
+                                    UserId = user.Id,
+                                    WorkName = user.WorkName
+                                }
+                            },
                             CreatedUser = user == null ? null : new CreatedByResponseModel
                             {
                                 UserId = user.Id,
