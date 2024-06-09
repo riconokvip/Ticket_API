@@ -45,7 +45,7 @@
         /// <param name="model">Dữ liệu cập nhật</param>
         /// <returns></returns>
         [HttpPut("{workSpaceId}")]
-        public async Task<BaseResponse> UpdateExistUser([FromRoute] string workSpaceId, [FromBody] WorkSpaceUpdateRequestModel model)
+        public async Task<BaseResponse> UpdateExistWorkSpace([FromRoute] string workSpaceId, [FromBody] WorkSpaceUpdateRequestModel model)
         {
             await _workSpaceService.UpdateWorkSpace(_mapper.Map<WorkSpaceUpdateMapRequestModel>(model), User.Identity.Name, workSpaceId);
             return Success();
@@ -57,7 +57,7 @@
         /// <param name="workSpaceId">Id không gian công việc</param>
         /// <returns></returns>
         [HttpDelete("{workSpaceId}")]
-        public async Task<BaseResponse> DeleteExistUser([FromRoute] string workSpaceId)
+        public async Task<BaseResponse> DeleteExistWorkSpace([FromRoute] string workSpaceId)
         {
             await _workSpaceService.DeleteWorkSpace(User.Identity.Name, workSpaceId);
             return Success();

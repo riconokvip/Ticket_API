@@ -72,7 +72,6 @@
                             }
                         };
 
-            // Filter
             var text = string.IsNullOrEmpty(model.TextSearch) ? null : model.TextSearch.ToLower().Trim();
             var skip = (model.PageIndex - 1) * model.PageSize;
 
@@ -107,7 +106,7 @@
         {
             var workSpace = await _context.WorkSpaces
                     .Where(_ => 
-                        _.WorkSpaceColor.ToLower().Contains(model.WorkSpaceName) && 
+                        _.WorkSpaceName.ToLower().Contains(model.WorkSpaceName.ToLower()) && 
                         _.CreatedBy == action &&
                         _.IsDeleted == false)
                     .FirstOrDefaultAsync();
@@ -134,7 +133,7 @@
             var workSpaceDup = await _context.WorkSpaces
                     .Where(_ => 
                         _.Id != workSpaceId &&
-                        _.WorkSpaceColor.ToLower().Contains(model.WorkSpaceName) && 
+                        _.WorkSpaceName.ToLower().Contains(model.WorkSpaceName.ToLower()) && 
                         _.CreatedBy == action &&
                         _.IsDeleted == false)
                     .FirstOrDefaultAsync();
