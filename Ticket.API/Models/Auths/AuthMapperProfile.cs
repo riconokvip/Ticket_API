@@ -8,7 +8,9 @@
                 .ForMember(dest => dest.Email, act => act.MapFrom(src => src.Email.Trim()))
                 .ForMember(dest => dest.Password, act => act.MapFrom(src => src.Password.Trim()));
 
-            CreateMap<UserEntities, InformationResponse>().ReverseMap();
+            CreateMap<UserEntities, InformationResponse>()
+                .ForMember(dest => dest.Level, act => act.MapFrom(src => src.IsAdmin ? "Quản trị viên" : src.Level))
+                .ReverseMap();
 
             CreateMap<JwtResponse, UserTokenEntities>()
                 .ForMember(dest => dest.AccessToken, act => act.MapFrom(src => src.Token.Hash()))

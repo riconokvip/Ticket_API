@@ -252,4 +252,5 @@ static void AddServices(WebApplicationBuilder builder)
     builder.Services.AddTransient<ApplicationMiddleware>();
 
     builder.Services.AddScoped<IAuthService, AuthService>();
+    builder.Services.AddScoped<IWorkSpaceService, WorkSpaceService>();
 }

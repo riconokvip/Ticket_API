@@ -9,6 +9,7 @@ global using Microsoft.EntityFrameworkCore;
 /* --- Internal using --- */
 // Base
 global using Microsoft.AspNetCore.Mvc;
+global using Microsoft.AspNetCore.Authorization;
 global using System.Text.RegularExpressions;
 global using System.Text.Json;
 global using System.ComponentModel.DataAnnotations;
@@ -24,5 +25,6 @@ global using Ticket.API.JwtAuthentications;
 // Models
 global using Ticket.API.Models;
 global using Ticket.API.Models.Auths;
+global using Ticket.API.Models.WorkSpaces;
 // Services
 global using Ticket.API.Services;
