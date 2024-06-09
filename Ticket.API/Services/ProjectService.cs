@@ -117,6 +117,15 @@
             if (project != null)
                 throw new BaseException(ErrorCodes.CONFLICT, HttpCodes.CONFLICT, $"{_name} đã tồn tại");
 
+            var workSpace = await _context.WorkSpaces
+                    .Where(_ =>
+                        _.Id == model.WorkSpaceId &&
+                        _.IsDeleted == false)
+                    .FirstOrDefaultAsync();
+
+            if (workSpace == null)
+                throw new BaseException(ErrorCodes.CONFLICT, HttpCodes.CONFLICT, $"Không gian công việc không tồn tại");
+
             var entity = _mapper.Map<ProjectEntities>(model);
             entity.Id = Guid.NewGuid().ToString();
             await _repo.Insert(entity, action);
