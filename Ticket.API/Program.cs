@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -251,4 +250,6 @@ static void AddServices(WebApplicationBuilder builder)
 {
     // Middleware
     builder.Services.AddTransient<ApplicationMiddleware>();
+
+    builder.Services.AddScoped<IAuthService, AuthService>();
 }
