@@ -168,7 +168,7 @@
                     .FirstOrDefaultAsync();
 
             if (workSpace != null)
-                throw new BaseException(ErrorCodes.CONFLICT, HttpCodes.CONFLICT, $"{_name} chưa tồn tại");
+                throw new BaseException(ErrorCodes.NOT_FOUND, HttpCodes.NOT_FOUND, $"{_name} chưa tồn tại");
 
             var workSpaceDup = await _context.WorkSpaces
                     .Where(_ => 

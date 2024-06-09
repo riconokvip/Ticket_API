@@ -43,6 +43,15 @@
 
         public async Task<ListWorkSpaceMemberResponseModel> GetWorkSpaceMembers(WorkSpaceMemberRequestModel model, string workSpaceId)
         {
+            var project = await _context.WorkSpaces
+                    .Where(_ =>
+                        _.Id == workSpaceId &&
+                        _.IsDeleted == false)
+                    .FirstOrDefaultAsync();
+
+            if (project == null)
+                throw new BaseException(ErrorCodes.NOT_FOUND, HttpCodes.NOT_FOUND, $"Không gian làm việc không tồn tại");
+
             var workSpaceMembers = _context.WorkSpaceMembers.Where(_ => _.WorkSpaceId == workSpaceId && _.IsDeleted == false);
             var users = _context.Users.Where(_ => _.IsDeleted == false);
 
@@ -117,7 +126,7 @@
                     .FirstOrDefaultAsync();
 
             if (member != null)
-                throw new BaseException(ErrorCodes.CONFLICT, HttpCodes.CONFLICT, $"{_name} chưa tồn tại trong không gian công việc");
+                throw new BaseException(ErrorCodes.NOT_FOUND, HttpCodes.NOT_FOUND, $"{_name} chưa tồn tại trong không gian công việc");
 
             await _repo.Delete(member, action);
         }

@@ -59,7 +59,7 @@
         [HttpDelete("{workSpaceId}")]
         public async Task<BaseResponse> DeleteExistWorkSpace([FromRoute] string workSpaceId)
         {
-            await _workSpaceService.DeleteWorkSpace(User.Identity.Name, workSpaceId);
+            await _workSpaceService.DeleteWorkSpace(workSpaceId, User.Identity.Name);
             return Success();
         }
     }

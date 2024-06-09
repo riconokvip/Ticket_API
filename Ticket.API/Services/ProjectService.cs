@@ -70,6 +70,15 @@
 
         public async Task<ListProjectResponseModel> GetProjects(ProjectRequestModel model, string workSpaceId)
         {
+            var project = await _context.WorkSpaces
+                    .Where(_ =>
+                        _.Id == workSpaceId &&
+                        _.IsDeleted == false)
+                    .FirstOrDefaultAsync();
+
+            if (project == null)
+                throw new BaseException(ErrorCodes.NOT_FOUND, HttpCodes.NOT_FOUND, $"Không gian làm việc chứa dự án không tồn tại");
+
             var projects = _context.Projects.Where(_ => _.WorkSpaceId == workSpaceId && _.IsDeleted == false);
             var users = _context.Users.Where(_ => _.IsDeleted == false);
 
@@ -152,7 +161,7 @@
                     .FirstOrDefaultAsync();
 
             if (workSpace == null)
-                throw new BaseException(ErrorCodes.CONFLICT, HttpCodes.CONFLICT, $"Không gian công việc không tồn tại");
+                throw new BaseException(ErrorCodes.NOT_FOUND, HttpCodes.NOT_FOUND, $"Không gian công việc không tồn tại");
 
             using (var transaction = _context.Database.BeginTransaction())
             {
@@ -199,7 +208,7 @@
                     .FirstOrDefaultAsync();
 
             if (project != null)
-                throw new BaseException(ErrorCodes.CONFLICT, HttpCodes.CONFLICT, $"{_name} chưa tồn tại");
+                throw new BaseException(ErrorCodes.NOT_FOUND, HttpCodes.NOT_FOUND, $"{_name} chưa tồn tại");
 
             var projectDup = await _context.Projects
                     .Where(_ =>
@@ -227,7 +236,7 @@
                     .FirstOrDefaultAsync();
 
             if (project != null)
-                throw new BaseException(ErrorCodes.CONFLICT, HttpCodes.CONFLICT, $"{_name} chưa tồn tại");
+                throw new BaseException(ErrorCodes.NOT_FOUND, HttpCodes.NOT_FOUND, $"{_name} chưa tồn tại");
 
             project.EstimateTime = model.EstimateTime;
             await _repo.Update(project, action);
@@ -242,7 +251,7 @@
                     .FirstOrDefaultAsync();
 
             if (project != null)
-                throw new BaseException(ErrorCodes.CONFLICT, HttpCodes.CONFLICT, $"{_name} chưa tồn tại");
+                throw new BaseException(ErrorCodes.NOT_FOUND, HttpCodes.NOT_FOUND, $"{_name} chưa tồn tại");
 
             project.ProjectPriority = model.Priority;
             await _repo.Update(project, action);
