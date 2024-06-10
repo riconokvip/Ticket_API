@@ -116,16 +116,19 @@ namespace Ticket.API.Services
                     user.CreatedBy = action;
                     _context.BulkInsert([user]);
 
-                    var permissions = _mapper.Map<List<UserPermissionEntities>>(model.Permissions);
-                    permissions.ForEach(permission =>
+                    if (model.Permissions.Count > 0)
                     {
-                        permission.Id = Guid.NewGuid().ToString();
-                        permission.UserId = user.Id;
-                        permission.PermissionName = permission.Permission.GetEnumMemberValue() + " " + permission.Resource.GetEnumMemberValue();
-                        permission.CreatedAt = ApplicationExtensions.NOW;
-                        permission.CreatedBy = action;
-                    });
-                    _context.BulkInsert(permissions);
+                        var permissions = _mapper.Map<List<UserPermissionEntities>>(model.Permissions);
+                        permissions.ForEach(permission =>
+                        {
+                            permission.Id = Guid.NewGuid().ToString();
+                            permission.UserId = user.Id;
+                            permission.PermissionName = permission.Permission.GetEnumMemberValue() + " " + permission.Resource.GetEnumMemberValue();
+                            permission.CreatedAt = ApplicationExtensions.NOW;
+                            permission.CreatedBy = action;
+                        });
+                        _context.BulkInsert(permissions);
+                    }
 
                     _context.BulkSaveChanges();
                     transaction.Commit();
