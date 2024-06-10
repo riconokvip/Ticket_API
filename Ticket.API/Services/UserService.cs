@@ -120,6 +120,7 @@ namespace Ticket.API.Services
                     permissions.ForEach(permission =>
                     {
                         permission.Id = Guid.NewGuid().ToString();
+                        permission.PermissionName = permission.Permission.GetEnumMemberValue() + " " + permission.Resource.GetEnumMemberValue();
                         permission.CreatedAt = ApplicationExtensions.NOW;
                         permission.CreatedBy = action;
                     });
