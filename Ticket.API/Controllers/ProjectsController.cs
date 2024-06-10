@@ -5,11 +5,13 @@
     [Route("api/[controller]")]
     public class ProjectsController : BaseController
     {
+        private readonly IAuthorizationService _authService;
         private readonly IProjectService _projectService;
         private readonly IMapper _mapper;
 
-        public ProjectsController(IProjectService projectService, IMapper mapper)
+        public ProjectsController(IAuthorizationService authService, IProjectService projectService, IMapper mapper)
         {
+            _authService = authService;
             _projectService = projectService;
             _mapper = mapper;
         }
@@ -23,6 +25,10 @@
         [HttpGet("{workSpaceId}")]
         public async Task<BaseResponseWithPagination<List<ProjectResponseModel>>> GetAllProject([FromRoute] string workSpaceId, [FromQuery] ProjectRequestModel model)
         {
+            var result = await _authService.AuthorizeAsync(User, ApplicationPermissions.GetListProject);
+            if (!result.Succeeded)
+                throw new BaseException(ErrorCodes.FORBIDDEN, HttpCodes.FOR_BIDDEN, ErrorCodes.FORBIDDEN.GetEnumMemberValue());
+
             var res = await _projectService.GetProjects(model, workSpaceId);
             return SuccessWithPagination(res.Pagination, res.Projects);
         }
@@ -35,6 +41,10 @@
         [HttpPost]
         public async Task<BaseResponse> CreateNewProject([FromBody] ProjectCreateRequestModel model)
         {
+            var result = await _authService.AuthorizeAsync(User, ApplicationPermissions.CreateProject);
+            if (!result.Succeeded)
+                throw new BaseException(ErrorCodes.FORBIDDEN, HttpCodes.FOR_BIDDEN, ErrorCodes.FORBIDDEN.GetEnumMemberValue());
+
             await _projectService.CreateProject(_mapper.Map<ProjectCreateMapRequestModel>(model), User.Identity.Name);
             return Success();
         }
@@ -48,6 +58,10 @@
         [HttpPut("{projectId}")]
         public async Task<BaseResponse> UpdateExistProject([FromRoute] string projectId, [FromBody] ProjectUpdateRequestModel model)
         {
+            var result = await _authService.AuthorizeAsync(User, ApplicationPermissions.UpdateProject);
+            if (!result.Succeeded)
+                throw new BaseException(ErrorCodes.FORBIDDEN, HttpCodes.FOR_BIDDEN, ErrorCodes.FORBIDDEN.GetEnumMemberValue());
+
             await _projectService.UpdateProject(_mapper.Map<ProjectUpdateMapRequestModel>(model), User.Identity.Name, projectId);
             return Success();
         }
@@ -61,6 +75,10 @@
         [HttpPatch("deadline/{projectId}")]
         public async Task<BaseResponse> UpdateExistProject([FromRoute] string projectId, [FromBody] ProjectUpdateEstimateTimeRequestModel model)
         {
+            var result = await _authService.AuthorizeAsync(User, ApplicationPermissions.UpdateProject);
+            if (!result.Succeeded)
+                throw new BaseException(ErrorCodes.FORBIDDEN, HttpCodes.FOR_BIDDEN, ErrorCodes.FORBIDDEN.GetEnumMemberValue());
+
             await _projectService.UpdateEstimateTimeProject(model, User.Identity.Name, projectId);
             return Success();
         }
@@ -74,6 +92,10 @@
         [HttpPatch("priority/{projectId}")]
         public async Task<BaseResponse> UpdateExistProject([FromRoute] string projectId, [FromBody] ProjectUpdatePriorityRequestModel model)
         {
+            var result = await _authService.AuthorizeAsync(User, ApplicationPermissions.UpdateProject);
+            if (!result.Succeeded)
+                throw new BaseException(ErrorCodes.FORBIDDEN, HttpCodes.FOR_BIDDEN, ErrorCodes.FORBIDDEN.GetEnumMemberValue());
+
             await _projectService.UpdatePriorityProject(model, User.Identity.Name, projectId);
             return Success();
         }
@@ -86,6 +108,10 @@
         [HttpDelete("{projectId}")]
         public async Task<BaseResponse> DeleteExistProject([FromRoute] string projectId)
         {
+            var result = await _authService.AuthorizeAsync(User, ApplicationPermissions.DeleteProject);
+            if (!result.Succeeded)
+                throw new BaseException(ErrorCodes.FORBIDDEN, HttpCodes.FOR_BIDDEN, ErrorCodes.FORBIDDEN.GetEnumMemberValue());
+
             await _projectService.DeleteProject(User.Identity.Name, projectId);
             return Success();
         }
