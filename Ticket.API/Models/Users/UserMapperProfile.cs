@@ -9,9 +9,14 @@
                 .ForMember(dest => dest.Telegram, act => act.MapFrom(src => src.Telegram.Trim()))
                 .ForMember(dest => dest.Email, act => act.MapFrom(src => src.Email.Trim()))
                 .ForMember(dest => dest.Level, act => act.MapFrom(src => src.Level.Trim()))
-                .ForMember(dest => dest.Password, act => act.MapFrom(src => src.Password.Trim()));
+                .ForMember(dest => dest.Password, act => act.MapFrom(src => src.Password.Trim()))
+                .ReverseMap();
 
             CreateMap<UserCreateMapRequestModel, UserEntities>().ReverseMap();
+
+            CreateMap<UserPermission, UserPermissionEntities>()
+                .ForMember(dest => dest.Claim, act => act.MapFrom(src => src.Permission.FastToString() + src.Resource.FastToString()))
+                .ReverseMap();
         }
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace Ticket.API.Services
+﻿using EFCore.BulkExtensions;
+
+namespace Ticket.API.Services
 {
     public interface IUserService
     {
@@ -102,11 +104,40 @@
                     throw new BaseException(ErrorCodes.BAD_REQUEST, HttpCodes.BAD_REQUEST, $"{_name}: tên công việc đã được sử dụng");
             }
 
-            user = _mapper.Map<UserEntities>(model);
-            user.Id = Guid.NewGuid().ToString();
-            user.IsAdmin = false;
-            user.PasswordHash = model.Password.Hash();
-            await _repo.Insert(user, action);
+            using (var transaction = _context.Database.BeginTransaction())
+            {
+                try
+                {
+                    user = _mapper.Map<UserEntities>(model);
+                    user.Id = Guid.NewGuid().ToString();
+                    user.IsAdmin = false;
+                    user.PasswordHash = model.Password.Hash();
+                    user.CreatedAt = ApplicationExtensions.NOW;
+                    user.CreatedBy = action;
+                    _context.BulkInsert([user]);
+
+                    var permissions = _mapper.Map<List<UserPermissionEntities>>(model.Permissions);
+                    permissions.ForEach(permission =>
+                    {
+                        permission.Id = Guid.NewGuid().ToString();
+                        permission.CreatedAt = ApplicationExtensions.NOW;
+                        permission.CreatedBy = action;
+                    });
+                    _context.BulkInsert(permissions);
+
+                    _context.BulkSaveChanges();
+                    transaction.Commit();
+                }
+                catch (Exception)
+                {
+                    transaction.Rollback();
+                    throw;
+                }
+                finally
+                {
+                    transaction.Dispose();
+                }
+            }
         }
     }
 }

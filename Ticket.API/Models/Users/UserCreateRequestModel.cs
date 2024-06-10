@@ -17,7 +17,7 @@
         /// <summary>
         /// Tài khoản email
         /// </summary>
-        [StringExtension("Tài khoản email", maxSize: 50)]
+        [EmailExtension("Tài khoản email")]
         public string Email { get; set; }
 
         /// <summary>
@@ -32,6 +32,11 @@
         [StringExtension("Mật khẩu")]
         [DefaultValue("okvip123")]
         public string Password { get; set; } = "okvip123";
+
+        /// <summary>
+        /// Quyền
+        /// </summary>
+        public List<UserPermission> Permissions { get; set; }
     }
 
     public class UserCreateMapRequestModel
@@ -60,5 +65,10 @@
         /// Mật khẩu
         /// </summary>
         public string Password { get; set; }
+
+        /// <summary>
+        /// Quyền
+        /// </summary>
+        public List<UserPermission> Permissions { get; set; }
     }
 }
