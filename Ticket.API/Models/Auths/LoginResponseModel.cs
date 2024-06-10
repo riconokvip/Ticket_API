@@ -15,7 +15,7 @@
         /// <summary>
         /// Danh sách tài nguyên được truy cập
         /// </summary>
-        public List<string> Roles { get; set; } = [];
+        public List<UserPermissionResponse> Roles { get; set; } = [];
     }
 
     public class InformationResponse

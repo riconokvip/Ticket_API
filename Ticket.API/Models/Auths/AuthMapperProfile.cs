@@ -17,6 +17,8 @@
                 .ForMember(dest => dest.AccessTokenExpiresAt, act => act.MapFrom(src => src.AccessTokenExpriesAt))
                 .ForMember(dest => dest.RefreshToken, act => act.MapFrom(src => src.RefreshToken.Hash()))
                 .ForMember(dest => dest.RefreshTokenExpiresAt, act => act.MapFrom(src => src.Expiration));
+
+            CreateMap<UserPermissionEntities, UserPermissionResponse>().ReverseMap();
         }
     }
 }

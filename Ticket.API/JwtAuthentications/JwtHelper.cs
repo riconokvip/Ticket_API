@@ -48,6 +48,8 @@ namespace Ticket.API.JwtAuthentications
                 foreach (var role in roles)
                 {
                     authClaims.Add(new Claim(ClaimTypes.Role, role));
+                    if (role == ApplicationRoles.Admin)
+                        break;
                 }
 
                 var accessTokenExp = DateTime.UtcNow.AddMinutes(_config.TokenValidityInMinutes);

@@ -46,12 +46,22 @@
             if (user.LockoutViolationEnabled == true)
                 throw new BaseException(ErrorCodes.LOCKED, HttpCodes.LOCKED, $"{_name} đã bị khóa");
 
-            var jwt = _jwtHelper.GenerateToken(user, [ApplicationRoles.Admin]);
+            var permissions = await _context.UserPermissions
+                        .Where(_ => _.UserId == user.Id && _.IsDeleted == false)
+                        .ToListAsync();
+
+            var claims = new List<string>();
+            if (user.IsAdmin)
+                claims.Add(ApplicationRoles.Admin);
+
+            claims.AddRange(permissions.Select(_ => _.Claim).ToList());
+            var jwt = _jwtHelper.GenerateToken(user, claims);
 
             return new LoginResponseModel()
             {
                 Jwt = jwt,
-                Info = _mapper.Map<InformationResponse>(user)
+                Info = _mapper.Map<InformationResponse>(user),
+                Roles = _mapper.Map<List<UserPermissionResponse>>(permissions)
             };
         }
     }

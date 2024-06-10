@@ -38,11 +38,6 @@
         public string TicketStatusName => TicketStatus.GetEnumMemberValue();
 
         /// <summary>
-        /// Người cập nhật
-        /// </summary>
-        public CreatedByResponseModel UpdatedUser { get; set; }
-
-        /// <summary>
         /// Thời gian tạo
         /// </summary>
         public DateTime CreatedAt { get; set; }

@@ -79,29 +79,21 @@
             var users = _context.Users.Where(_ => _.IsDeleted == false);
 
             var query = from t in tickets
-                        join u1 in users on t.CreatedBy equals u1.Id into obj1
-                        join u2 in users on t.FromUserId equals u2.Id into obj2
-                        from user1 in obj1.DefaultIfEmpty()
-                        from user2 in obj2.DefaultIfEmpty()
+                        join u in users on t.FromUserId equals u.Id into obj
+                        from user in obj.DefaultIfEmpty()
                         select new TicketResponseModel
                         {
                             Id = t.Id,
-                            FromUser = user2 == null ? null : new RefUserResponseModel
+                            FromUser = user == null ? null : new RefUserResponseModel
                             {
-                                UserId = user2.Id,
-                                WorkName = user2.WorkName,
-                                IsAdmin = user2.IsAdmin,
-                                Level = user2.IsAdmin ? "Quản trị viên" : user2.Level
+                                UserId = user.Id,
+                                WorkName = user.WorkName,
+                                IsAdmin = user.IsAdmin,
+                                Level = user.IsAdmin ? "Quản trị viên" : user.Level
                             },
                             TicketContent = t.TicketContent,
                             TicketStatus = t.TicketStatus,
-                            UpdatedUser = user1 == null ? null : new CreatedByResponseModel
-                            {
-                                UserId = user1.Id,
-                                WorkName = user1.WorkName,
-                                IsAdmin = user1.IsAdmin,
-                                Level = user1.IsAdmin ? "Quản trị viên" : user1.Level
-                            }
+                            CreatedAt = t.CreatedAt
                         };
             var text = string.IsNullOrEmpty(model.TextSearch) ? null : model.TextSearch.ToLower().Trim();
             var skip = (model.PageIndex - 1) * model.PageSize;
@@ -139,29 +131,21 @@
             var users = _context.Users.Where(_ => _.IsDeleted == false);
 
             var query = from t in tickets
-                        join u1 in users on t.CreatedBy equals u1.Id into obj1
-                        join u2 in users on t.FromUserId equals u2.Id into obj2
-                        from user1 in obj1.DefaultIfEmpty()
-                        from user2 in obj2.DefaultIfEmpty()
+                        join u in users on t.FromUserId equals u.Id into obj
+                        from user in obj.DefaultIfEmpty()
                         select new TicketResponseModel
                         {
                             Id = t.Id,
-                            FromUser = user2 == null ? null : new RefUserResponseModel
+                            FromUser = user == null ? null : new RefUserResponseModel
                             {
-                                UserId = user2.Id,
-                                WorkName = user2.WorkName,
-                                IsAdmin = user2.IsAdmin,
-                                Level = user2.IsAdmin ? "Quản trị viên" : user2.Level
+                                UserId = user.Id,
+                                WorkName = user.WorkName,
+                                IsAdmin = user.IsAdmin,
+                                Level = user.IsAdmin ? "Quản trị viên" : user.Level
                             },
                             TicketContent = t.TicketContent,
                             TicketStatus = t.TicketStatus,
-                            UpdatedUser = user1 == null ? null : new CreatedByResponseModel
-                            {
-                                UserId = user1.Id,
-                                WorkName = user1.WorkName,
-                                IsAdmin = user1.IsAdmin,
-                                Level = user1.IsAdmin ? "Quản trị viên" : user1.Level
-                            }
+                            CreatedAt = t.CreatedAt
                         };
             var text = string.IsNullOrEmpty(model.TextSearch) ? null : model.TextSearch.ToLower().Trim();
             var skip = (model.PageIndex - 1) * model.PageSize;

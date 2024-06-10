@@ -27,7 +27,7 @@
             [FromRoute] string fromUserId, 
             [FromQuery] TicketRequestModel model)
         {
-            var result = await _authService.AuthorizeAsync(User, fromUserId, ApplicationPermissions.GetListTicket);
+            var result = await _authService.AuthorizeAsync(User, fromUserId, ApplicationPermissions.GetListTicketByUser);
             if (!result.Succeeded)
                 throw new BaseException(ErrorCodes.FORBIDDEN, HttpCodes.FOR_BIDDEN, ErrorCodes.FORBIDDEN.GetEnumMemberValue());
 
@@ -43,7 +43,7 @@
         [HttpGet]
         public async Task<BaseResponseWithPagination<List<TicketResponseModel>>> GetAllTicket([FromQuery] TicketRequestModel model)
         {
-            var result = await _authService.AuthorizeAsync(User, ApplicationPermissions.GetListTicketByUser);
+            var result = await _authService.AuthorizeAsync(User, ApplicationPermissions.GetListTicket);
             if (!result.Succeeded)
                 throw new BaseException(ErrorCodes.FORBIDDEN, HttpCodes.FOR_BIDDEN, ErrorCodes.FORBIDDEN.GetEnumMemberValue());
 
