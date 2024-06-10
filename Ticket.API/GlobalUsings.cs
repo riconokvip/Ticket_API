@@ -16,6 +16,7 @@ global using System.ComponentModel.DataAnnotations;
 global using System.ComponentModel;
 global using FastEnumUtility;
 global using AutoMapper;
+global using System.Security.Claims;
 // Extensions
 global using Ticket.API.Extensions;
 // Middlewares
@@ -30,5 +31,6 @@ global using Ticket.API.Models.Projects;
 global using Ticket.API.Models.WorkSpaceMembers;
 global using Ticket.API.Models.ProjectMembers;
 global using Ticket.API.Models.Tickets;
+global using Ticket.API.Models.Users;
 // Services
 global using Ticket.API.Services;

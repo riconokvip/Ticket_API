@@ -257,4 +257,6 @@ static void AddServices(WebApplicationBuilder builder)
     builder.Services.AddScoped<IWorkSpaceMemberService, WorkSpaceMemberService>();
     builder.Services.AddScoped<IProjectMemberService, ProjectMemberService>();
     builder.Services.AddScoped<ITicketService, TicketService>();
+
+    builder.Services.AddScoped<IUserService, UserService>();
 }
