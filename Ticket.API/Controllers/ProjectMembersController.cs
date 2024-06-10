@@ -5,10 +5,12 @@
     [Route("api/[controller]")]
     public class ProjectMembersController : BaseController
     {
+        private readonly IAuthorizationService _authService;
         private readonly IProjectMemberService _projectMemberService;
 
-        public ProjectMembersController(IProjectMemberService projectMemberService)
+        public ProjectMembersController(IAuthorizationService authService, IProjectMemberService projectMemberService)
         {
+            _authService = authService;
             _projectMemberService = projectMemberService;
         }
 
@@ -22,6 +24,10 @@
             [FromRoute] string projectId,
             [FromQuery] ProjectMemberRequestModel model)
         {
+            var result = await _authService.AuthorizeAsync(User, ApplicationPermissions.GetListProjectMember);
+            if (!result.Succeeded)
+                throw new BaseException(ErrorCodes.FORBIDDEN, HttpCodes.FOR_BIDDEN, ErrorCodes.FORBIDDEN.GetEnumMemberValue());
+
             var res = await _projectMemberService.GetProjectMembers(model, projectId);
             return SuccessWithPagination(res.Pagination, res.Members);
         }
@@ -34,6 +40,10 @@
         [HttpPost]
         public async Task<BaseResponse> AddNewMemberInProject([FromBody] ProjectAddMemberRequestModel model)
         {
+            var result = await _authService.AuthorizeAsync(User, ApplicationPermissions.AddProjectMember);
+            if (!result.Succeeded)
+                throw new BaseException(ErrorCodes.FORBIDDEN, HttpCodes.FOR_BIDDEN, ErrorCodes.FORBIDDEN.GetEnumMemberValue());
+
             await _projectMemberService.AddMemberInProject(model, User.Identity.Name);
             return Success();
         }
@@ -46,6 +56,10 @@
         [HttpDelete]
         public async Task<BaseResponse> DeleteExistMemberInProject([FromBody] ProjectRemoveMemberRequestModel model)
         {
+            var result = await _authService.AuthorizeAsync(User, ApplicationPermissions.RemoveProjectMember);
+            if (!result.Succeeded)
+                throw new BaseException(ErrorCodes.FORBIDDEN, HttpCodes.FOR_BIDDEN, ErrorCodes.FORBIDDEN.GetEnumMemberValue());
+
             await _projectMemberService.RemoveMemberInProject(model, User.Identity.Name);
             return Success();
         }
