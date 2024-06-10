@@ -34,3 +34,5 @@ global using Ticket.API.Models.Tickets;
 global using Ticket.API.Models.Users;
 // Services
 global using Ticket.API.Services;
+// Custom Authorizations
+global using Ticket.API.Authorizations;

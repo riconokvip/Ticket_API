@@ -5,11 +5,13 @@
     [Route("api/[controller]")]
     public class TicketsController : BaseController
     {
+        private readonly IAuthorizationService _authService;
         private readonly ITicketService _ticketService;
         private readonly IMapper _mapper;
 
-        public TicketsController(ITicketService ticketService, IMapper mapper)
+        public TicketsController(IAuthorizationService authService, ITicketService ticketService, IMapper mapper)
         {
+            _authService = authService;
             _ticketService = ticketService;
             _mapper = mapper;
         }
@@ -25,6 +27,10 @@
             [FromRoute] string fromUserId, 
             [FromQuery] TicketRequestModel model)
         {
+            var result = await _authService.AuthorizeAsync(User, fromUserId, ApplicationPermissions.GetListTicket);
+            if (!result.Succeeded)
+                throw new BaseException(ErrorCodes.FORBIDDEN, HttpCodes.FOR_BIDDEN, ErrorCodes.FORBIDDEN.GetEnumMemberValue());
+
             var res = await _ticketService.GetTicketsByUserId(model, fromUserId);
             return SuccessWithPagination(res.Pagination, res.Tickets);
         }
@@ -37,6 +43,10 @@
         [HttpGet]
         public async Task<BaseResponseWithPagination<List<TicketResponseModel>>> GetAllTicket([FromQuery] TicketRequestModel model)
         {
+            var result = await _authService.AuthorizeAsync(User, ApplicationPermissions.GetListTicketByUser);
+            if (!result.Succeeded)
+                throw new BaseException(ErrorCodes.FORBIDDEN, HttpCodes.FOR_BIDDEN, ErrorCodes.FORBIDDEN.GetEnumMemberValue());
+
             var res = await _ticketService.GetTickets(model);
             return SuccessWithPagination(res.Pagination, res.Tickets);
         }
@@ -49,6 +59,10 @@
         [HttpPost]
         public async Task<BaseResponse> CreateNewTicket([FromBody] TicketCreateRequestModel model)
         {
+            var result = await _authService.AuthorizeAsync(User, ApplicationPermissions.CreateTicket);
+            if (!result.Succeeded)
+                throw new BaseException(ErrorCodes.FORBIDDEN, HttpCodes.FOR_BIDDEN, ErrorCodes.FORBIDDEN.GetEnumMemberValue());
+
             await _ticketService.CreateTicket(_mapper.Map<TicketCreateMapRequestModel>(model), User.Identity.Name);
             return Success();
         }
@@ -62,6 +76,10 @@
         [HttpPatch("content/{ticketId}")]
         public async Task<BaseResponse> UpdateExistTicket([FromRoute] string ticketId, [FromBody] TicketUpdateContentRequestModel model)
         {
+            var result = await _authService.AuthorizeAsync(User, ApplicationPermissions.UpdateTicket);
+            if (!result.Succeeded)
+                throw new BaseException(ErrorCodes.FORBIDDEN, HttpCodes.FOR_BIDDEN, ErrorCodes.FORBIDDEN.GetEnumMemberValue());
+
             await _ticketService.UpdateContentTicket(model, User.Identity.Name, ticketId);
             return Success();
         }
@@ -75,6 +93,10 @@
         [HttpPatch("status/{ticketId}")]
         public async Task<BaseResponse> UpdateExistTicket([FromRoute] string ticketId, [FromBody] TicketUpdateStatusRequestModel model)
         {
+            var result = await _authService.AuthorizeAsync(User, ApplicationPermissions.UpdateTicket);
+            if (!result.Succeeded)
+                throw new BaseException(ErrorCodes.FORBIDDEN, HttpCodes.FOR_BIDDEN, ErrorCodes.FORBIDDEN.GetEnumMemberValue());
+
             await _ticketService.UpdateStatusTicket(model, User.Identity.Name, ticketId);
             return Success();
         }
@@ -87,6 +109,12 @@
         [HttpDelete("{ticketId}")]
         public async Task<BaseResponse> DeleteExistTicket([FromRoute] string ticketId)
         {
+            var ticket = await _ticketService.CheckExistTicket(ticketId);
+
+            var result = await _authService.AuthorizeAsync(User, ticket.FromUserId, ApplicationPermissions.DeleteTicket);
+            if (!result.Succeeded)
+                throw new BaseException(ErrorCodes.FORBIDDEN, HttpCodes.FOR_BIDDEN, ErrorCodes.FORBIDDEN.GetEnumMemberValue());
+
             await _ticketService.DeleteTicket(User.Identity.Name, ticketId);
             return Success();
         }

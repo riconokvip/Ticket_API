@@ -242,7 +242,66 @@ static void AddMapper(WebApplicationBuilder builder)
 // Add dynamic authorization
 static void AddAuthorizations(WebApplicationBuilder builder)
 {
-    
+    /* --- Ticket policies --- */
+    builder.Services.AddTransient<IAuthorizationHandler, GetListTicketAuthorization>();
+    builder.Services.AddTransient<IAuthorizationHandler, GetListByUserTicketAuthorization>();
+    builder.Services.AddTransient<IAuthorizationHandler, CreateTicketAuthorization>();
+    builder.Services.AddTransient<IAuthorizationHandler, UpdateTicketAuthorization>();
+    builder.Services.AddTransient<IAuthorizationHandler, DeleteTicketAuthorization>();
+
+    /* --- WorkSpace policies --- */
+    builder.Services.AddTransient<IAuthorizationHandler, GetListWorkSpaceAuthorization>();
+    builder.Services.AddTransient<IAuthorizationHandler, CreateWorkSpaceAuthorization>();
+    builder.Services.AddTransient<IAuthorizationHandler, UpdateWorkSpaceAuthorization>();
+    builder.Services.AddTransient<IAuthorizationHandler, DeleteWorkSpaceAuthorization>();
+
+    /* --- Project policies --- */
+    builder.Services.AddTransient<IAuthorizationHandler, GetListProjectAuthorization>();
+    builder.Services.AddTransient<IAuthorizationHandler, CreateProjectAuthorization>();
+    builder.Services.AddTransient<IAuthorizationHandler, UpdateProjectAuthorization>();
+    builder.Services.AddTransient<IAuthorizationHandler, DeleteProjectAuthorization>();
+
+    /* --- WorkSpaceMember policies --- */
+    builder.Services.AddTransient<IAuthorizationHandler, GetListWorkSpaceMemberAuthorization>();
+    builder.Services.AddTransient<IAuthorizationHandler, AddWorkSpaceMemberAuthorization>();
+    builder.Services.AddTransient<IAuthorizationHandler, RemoveWorkSpaceMemberAuthorization>();
+
+    /* --- ProjectMember policies --- */
+    builder.Services.AddTransient<IAuthorizationHandler, GetListProjectMemberAuthorization>();
+    builder.Services.AddTransient<IAuthorizationHandler, AddProjectMemberAuthorization>();
+    builder.Services.AddTransient<IAuthorizationHandler, RemoveProjectMemberAuthorization>();
+
+    builder.Services.AddAuthorization(options =>
+    {
+        /* --- Ticket policies --- */
+        options.AddPolicy(ApplicationPermissions.GetListTicket, policy => policy.Requirements.Add(new GetListTicketRequirement()));
+        options.AddPolicy(ApplicationPermissions.GetListTicketByUser, policy => policy.Requirements.Add(new GetListByUserTicketRequirement()));
+        options.AddPolicy(ApplicationPermissions.CreateTicket, policy => policy.Requirements.Add(new CreateTicketRequirement()));
+        options.AddPolicy(ApplicationPermissions.UpdateTicket, policy => policy.Requirements.Add(new UpdateTicketRequirement()));
+        options.AddPolicy(ApplicationPermissions.DeleteTicket, policy => policy.Requirements.Add(new DeleteTicketRequirement()));
+
+        /* --- WorkSpace policies --- */
+        options.AddPolicy(ApplicationPermissions.GetListWorkSpace, policy => policy.Requirements.Add(new GetListWorkSpaceRequirement()));
+        options.AddPolicy(ApplicationPermissions.CreateWorkSpace, policy => policy.Requirements.Add(new CreateWorkSpaceRequirement()));
+        options.AddPolicy(ApplicationPermissions.UpdateWorkSpace, policy => policy.Requirements.Add(new UpdateWorkSpaceRequirement()));
+        options.AddPolicy(ApplicationPermissions.DeleteWorkSpace, policy => policy.Requirements.Add(new DeleteWorkSpaceRequirement()));
+
+        /* --- Project policies --- */
+        options.AddPolicy(ApplicationPermissions.GetListProject, policy => policy.Requirements.Add(new GetListProjectRequirement()));
+        options.AddPolicy(ApplicationPermissions.CreateProject, policy => policy.Requirements.Add(new CreateProjectRequirement()));
+        options.AddPolicy(ApplicationPermissions.UpdateProject, policy => policy.Requirements.Add(new UpdateProjectRequirement()));
+        options.AddPolicy(ApplicationPermissions.DeleteProject, policy => policy.Requirements.Add(new DeleteProjectRequirement()));
+
+        /* --- WorkSpaceMember policies --- */
+        options.AddPolicy(ApplicationPermissions.GetListWorkSpaceMember, policy => policy.Requirements.Add(new GetListWorkSpaceMemberRequirement()));
+        options.AddPolicy(ApplicationPermissions.AddWorkSpaceMember, policy => policy.Requirements.Add(new AddWorkSpaceMemberRequirement()));
+        options.AddPolicy(ApplicationPermissions.RemoveWorkSpaceMember, policy => policy.Requirements.Add(new RemoveWorkSpaceMemberRequirement()));
+
+        /* --- ProjectMember policies --- */
+        options.AddPolicy(ApplicationPermissions.GetListProjectMember, policy => policy.Requirements.Add(new GetListProjectMemberRequirement()));
+        options.AddPolicy(ApplicationPermissions.AddProjectMember, policy => policy.Requirements.Add(new AddProjectMemberRequirement()));
+        options.AddPolicy(ApplicationPermissions.RemoveProjectMember, policy => policy.Requirements.Add(new RemoveProjectMemberRequirement()));
+    });
 }
 
 // Register service

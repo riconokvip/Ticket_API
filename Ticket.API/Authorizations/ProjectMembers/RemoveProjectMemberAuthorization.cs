@@ -1,4 +1,4 @@
-﻿namespace Ticket.API.Authorizations.ProjectMembers
+﻿namespace Ticket.API.Authorizations
 {
     public class RemoveProjectMemberRequirement : IAuthorizationRequirement { }
 

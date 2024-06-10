@@ -50,6 +50,13 @@
         /// <param name="action">Người thực hiện</param>
         /// <returns></returns>
         Task DeleteTicket(string ticketId, string action);
+
+        /// <summary>
+        /// Kiểm tra yêu cầu tồn tại
+        /// </summary>
+        /// <param name="ticketId">Id yêu cầu</param>
+        /// <returns></returns>
+        Task<TicketEntities> CheckExistTicket(string ticketId);
     }
 
     public class TicketService : ITicketService
@@ -245,6 +252,20 @@
                 throw new BaseException(ErrorCodes.NOT_FOUND, HttpCodes.NOT_FOUND, $"{_name} chưa tồn tại");
 
             await _repo.Delete(ticket, action);
+        }
+
+        public async Task<TicketEntities> CheckExistTicket(string ticketId)
+        {
+            var ticket = await _context.Tickets
+                   .Where(_ =>
+                       _.Id == ticketId &&
+                       _.IsDeleted == false)
+                   .FirstOrDefaultAsync();
+
+            if (ticket == null)
+                throw new BaseException(ErrorCodes.NOT_FOUND, HttpCodes.NOT_FOUND, $"{_name} chưa tồn tại");
+
+            return ticket;
         }
     }
 }
