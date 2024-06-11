@@ -45,13 +45,6 @@ namespace Ticket.API.Services
                         _.IsAdmin == false && 
                         _.IsDeleted == false
                     )
-                    .Where(
-                        _ =>
-                        _.WorkName.ToLower().Contains(text) ||
-                        _.Telegram.ToLower().Contains(text) ||
-                        _.Email.ToLower().Contains(text) ||
-                        _.Level.ToLower().Contains(text)
-                    )
                     .Select(_ => new UserResponseModel
                     {
                         Id = _.Id,
@@ -63,6 +56,17 @@ namespace Ticket.API.Services
                         CreatedAt = _.CreatedAt,
                         LockoutViolationEnabled = _.LockoutViolationEnabled
                     });
+
+            if (text != null)
+            {
+                query = query.Where(
+                        _ =>
+                        _.WorkName.ToLower().Contains(text) ||
+                        _.Telegram.ToLower().Contains(text) ||
+                        _.Email.ToLower().Contains(text) ||
+                        _.Level.ToLower().Contains(text)
+                    );
+            }
 
             var data = await query
                             .OrderByDescending(_ => _.CreatedAt)
