@@ -9,6 +9,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Cores", "Cores", "{36F3503A
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ticket.Domain", "..\Ticket.Domain\Ticket.Domain\Ticket.Domain.csproj", "{BA39E045-4B99-4E56-8F9B-2F60702903C8}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastructure", "{681F0A4E-7442-4EDF-A72C-94373B8906B3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ticket.Persistence", "Ticket.Persistence\Ticket.Persistence.csproj", "{27CDD338-FCFF-4B1C-8D22-1AF053442AD6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,12 +27,17 @@ Global
 		{BA39E045-4B99-4E56-8F9B-2F60702903C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BA39E045-4B99-4E56-8F9B-2F60702903C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BA39E045-4B99-4E56-8F9B-2F60702903C8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{27CDD338-FCFF-4B1C-8D22-1AF053442AD6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{27CDD338-FCFF-4B1C-8D22-1AF053442AD6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{27CDD338-FCFF-4B1C-8D22-1AF053442AD6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{27CDD338-FCFF-4B1C-8D22-1AF053442AD6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{BA39E045-4B99-4E56-8F9B-2F60702903C8} = {36F3503A-BB05-46CF-85C2-C1001911C58B}
+		{27CDD338-FCFF-4B1C-8D22-1AF053442AD6} = {681F0A4E-7442-4EDF-A72C-94373B8906B3}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {48E3267F-D07A-4FB8-9038-9E75A0C5DAF1}

@@ -1,19 +1,6 @@
-﻿namespace Ticket.API.Models.Users
+﻿namespace Ticket.API.EsModels
 {
-    public class ListUserResponseModel
-    {
-        /// <summary>
-        /// Danh sách người dùng
-        /// </summary>
-        public List<UserResponseModel> Users { get; set; }
-
-        /// <summary>
-        /// Phân trang
-        /// </summary>
-        public PaginationResponse Pagination { get; set; }
-    }
-
-    public class UserResponseModel
+    public class EsUsers
     {
         public string Id { get; set; }
 
@@ -45,12 +32,12 @@
         /// <summary>
         /// Trạng thái khóa khi vi phạm
         /// </summary>
-        public bool LockoutViolationEnabled { get; set; } = false;
+        public bool LockoutViolationEnabled { get; set; }
 
         /// <summary>
         /// Trạng thái
         /// </summary>
-        public string LockStatus => LockoutViolationEnabled ? "Khóa" : "Kích hoạt";
+        public string LockStatus { get; set; }
 
         /// <summary>
         /// Thời gian tạo
@@ -60,6 +47,6 @@
         /// <summary>
         /// Danh sách tài nguyên được truy cập
         /// </summary>
-        public List<UserPermissionResponse> Roles { get; set; } = [];
+        public List<UserPermissionResponse> Roles { get; set; }
     }
 }

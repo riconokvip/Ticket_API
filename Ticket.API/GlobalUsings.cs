@@ -6,6 +6,9 @@ global using Ticket.Domain.Extensions;
 global using Ticket.Domain.Repositories;
 global using Microsoft.EntityFrameworkCore;
 
+/* --- Infrastructure --- */
+global using Ticket.Persistence;
+
 /* --- Internal using --- */
 // Base
 global using Microsoft.AspNetCore.Mvc;
@@ -32,6 +35,8 @@ global using Ticket.API.Models.WorkSpaceMembers;
 global using Ticket.API.Models.ProjectMembers;
 global using Ticket.API.Models.Tickets;
 global using Ticket.API.Models.Users;
+// Es Models
+global using Ticket.API.EsModels;
 // Services
 global using Ticket.API.Services;
 // Custom Authorizations

@@ -18,6 +18,8 @@ builder.Services.AddDbContextPool<ApplicationDbContext>(options =>
     options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
 });
 
+builder.Services.AddEsServices(builder.Configuration);
+
 AddAuthentications(builder);
 AddControllers(builder);
 AddSwaggers(builder);

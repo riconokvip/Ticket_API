@@ -36,26 +36,33 @@ namespace Ticket.API.Services
 
         public async Task<ListUserResponseModel> GetUsers(UserRequestModel model)
         {
+            var users = _context.Users.Where(_ => _.IsAdmin == false && _.IsDeleted ==  false);
+            var permissions = _context.UserPermissions.Where(_ => _.IsDeleted == false);
+
+            var query = from u in users
+                        join p in permissions on u.Id equals p.UserId into obj
+                        select new UserResponseModel
+                        {
+                            Id = u.Id,
+                            Email = u.Email,
+                            WorkName = u.WorkName,
+                            Telegram = u.Telegram,
+                            Level = u.Level,
+                            Phone = u.Phone,
+                            CreatedAt = u.CreatedAt,
+                            LockoutViolationEnabled = u.LockoutViolationEnabled,
+                            Roles = obj.Select(_ => new UserPermissionResponse
+                            {
+                                Id = _.Id,
+                                Claim = _.Claim,
+                                Permission = _.Permission,
+                                PermissionName = _.PermissionName,
+                                Resource = _.Resource
+                            }).ToList()
+                        };
+
             var text = string.IsNullOrEmpty(model.TextSearch) ? null : model.TextSearch.ToLower().Trim();
             var skip = (model.PageIndex - 1) * model.PageSize;
-
-            var query = _context.Users
-                    .Where(
-                        _ => 
-                        _.IsAdmin == false && 
-                        _.IsDeleted == false
-                    )
-                    .Select(_ => new UserResponseModel
-                    {
-                        Id = _.Id,
-                        Email = _.Email,
-                        WorkName = _.WorkName,
-                        Telegram = _.Telegram,
-                        Level = _.Level,
-                        Phone = _.Phone,
-                        CreatedAt = _.CreatedAt,
-                        LockoutViolationEnabled = _.LockoutViolationEnabled
-                    });
 
             if (text != null)
             {
