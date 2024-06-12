@@ -19,6 +19,7 @@ builder.Services.AddDbContextPool<ApplicationDbContext>(options =>
 });
 
 builder.Services.AddEsServices(builder.Configuration);
+builder.Services.AddRedisCaches(builder.Configuration);
 
 AddAuthentications(builder);
 AddControllers(builder);

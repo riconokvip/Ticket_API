@@ -1,6 +1,4 @@
 ﻿using Elasticsearch.Net;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Nest;
 
 namespace Ticket.Persistence
@@ -9,14 +7,28 @@ namespace Ticket.Persistence
     {
         public static void AddEsServices(this IServiceCollection services, IConfiguration configuration)
         {
-            var credentials = configuration.GetSection("Elastic");
-            var pool = new SingleNodeConnectionPool(new Uri("https://localhost:9200"));
+            var credentials = configuration.GetSection("Elastic") ??
+                throw new Exception("Let's check elastic of config in appsettings.json");
+
+            var pool = new SingleNodeConnectionPool(new Uri(credentials["Host"]));
             var settings = new ConnectionSettings(pool)
-                .BasicAuthentication(credentials["user"], credentials["pass"])
+                .BasicAuthentication(credentials["User"], credentials["Pass"])
                 .ServerCertificateValidationCallback(CertificateValidations.AllowAll);
 
             services.AddSingleton<IElasticClient>(new ElasticClient(settings));
             services.AddScoped(typeof(IEsRepo<>), typeof(EsRepo<>));
+        }
+
+        public static void AddRedisCaches(this IServiceCollection services, IConfiguration configuration)
+        {
+            var credentials = configuration.GetSection("Redis") ??
+                throw new Exception("Let's check redis of config in appsettings.json");
+
+            services.AddStackExchangeRedisCache(options => {
+                options.Configuration = credentials["ConnectionStrings"];
+            });
+
+            services.AddScoped<IDistributedCacheService, DistributedCacheService>();
         }
     }
 }
