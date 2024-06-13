@@ -9,7 +9,7 @@ namespace Ticket.API.Services
         /// </summary>
         /// <param name="model">Bộ lọc</param>
         /// <returns></returns>
-        Task<ListUserResponseModel> GetUsers(UserRequestModel model);
+        Task<ListUserResponseModel> GetEsUsers(UserRequestModel model);
 
         /// <summary>
         /// Tạo người dùng mới
@@ -24,74 +24,68 @@ namespace Ticket.API.Services
     {
         private readonly ApplicationDbContext _context;
         private readonly UserRepo _repo;
+        private readonly IEsRepo<EsUsers> _esRepo;
+        private readonly IDistributedCacheService _cacheService;
         private readonly IMapper _mapper;
         private readonly string _name = "Người dùng";
 
-        public UserService(ApplicationDbContext context, IMapper mapper)
+        public UserService(
+            ApplicationDbContext context,
+            IEsRepo<EsUsers> esRepo,
+            IDistributedCacheService cacheService, 
+            IMapper mapper)
         {
             _context = context;
             _repo = new UserRepo(context);
+            _esRepo = esRepo;
+            _cacheService = cacheService;
             _mapper = mapper;
         }
 
-        public async Task<ListUserResponseModel> GetUsers(UserRequestModel model)
+        public async Task<ListUserResponseModel> GetEsUsers(UserRequestModel model)
         {
-            var users = _context.Users.Where(_ => _.IsAdmin == false && _.IsDeleted ==  false);
-            var permissions = _context.UserPermissions.Where(_ => _.IsDeleted == false);
+            // Get cache
+            var resUserKey = CacheSettings.ResKey(RedisKeys.Users(model.PageIndex, model.PageSize, text));
+            var resUsers = _cacheService.TryGetValue<ListUserResponseModel>(resUserKey, out var _resUsers);
+            if (resUsers)
+                return _resUsers;
 
-            var query = from u in users
-                        join p in permissions on u.Id equals p.UserId into obj
-                        select new UserResponseModel
-                        {
-                            Id = u.Id,
-                            Email = u.Email,
-                            WorkName = u.WorkName,
-                            Telegram = u.Telegram,
-                            Level = u.Level,
-                            Phone = u.Phone,
-                            CreatedAt = u.CreatedAt,
-                            LockoutViolationEnabled = u.LockoutViolationEnabled,
-                            Roles = obj.Select(_ => new UserPermissionResponse
-                            {
-                                Id = _.Id,
-                                Claim = _.Claim,
-                                Permission = _.Permission,
-                                PermissionName = _.PermissionName,
-                                Resource = _.Resource
-                            }).ToList()
-                        };
-
-            var text = string.IsNullOrEmpty(model.TextSearch) ? null : model.TextSearch.ToLower().Trim();
+            var text = string.IsNullOrEmpty(model.TextSearch) ? "" : model.TextSearch.ToLower().Trim();
             var skip = (model.PageIndex - 1) * model.PageSize;
 
-            if (text != null)
-            {
-                query = query.Where(
-                        _ =>
-                        _.WorkName.ToLower().Contains(text) ||
-                        _.Telegram.ToLower().Contains(text) ||
-                        _.Email.ToLower().Contains(text) ||
-                        _.Level.ToLower().Contains(text)
-                    );
-            }
+            // Query redis
+            var esUserKey = CacheSettings.EsKey(RedisKeys.EsUsers);
+            var esUsers = _cacheService.TryGetValue<List<UserResponseModel>>(esUserKey, out var _esUsers);
 
-            var data = await query
-                            .OrderByDescending(_ => _.CreatedAt)
-                            .Skip(skip)
-                            .Take(model.PageSize)
-                            .ToListAsync();
-            var total = await query.CountAsync();
+            // Query elastic
+            var esQuery = await _esRepo.Client()
+                                .SearchAsync<EsUsers>(s => 
+                                    s.Index(typeof(EsUsers).Name.ToLower())
+                                    .From(skip)
+                                    .Take(model.PageSize)
+                                    .Query(q => q.Match(m => m.Query(text)))
+                                );
+            var esCount = await _esRepo.Client()
+                                .SearchAsync<EsUsers>(s =>
+                                    s.Index(typeof(EsUsers).Name.ToLower())
+                                    .Query(q => q.Match(m => m.Query(text)))
+                                );
+            var esDatas = _mapper.Map<List<UserResponseModel>>(esQuery.Documents.ToList());
 
-            return new ListUserResponseModel
+            // Set cache
+            var data = new ListUserResponseModel
             {
-                Users = data,
+                Users = esUsers ? _esUsers.Concat(esDatas).ToList() : esDatas,
                 Pagination = new PaginationResponse
                 {
                     PageIndex = model.PageIndex,
                     PageSize = model.PageSize,
-                    Total = total
+                    Total = esCount.Total
                 }
             };
+            await _cacheService.SetAsync(resUserKey, data, CacheSettings.CACHE_OPTION);
+
+            return data;
         }
 
         public async Task CreateUser(UserCreateMapRequestModel model, string action)
@@ -134,7 +128,7 @@ namespace Ticket.API.Services
                         {
                             permission.Id = Guid.NewGuid().ToString();
                             permission.UserId = user.Id;
-                            permission.PermissionName = permission.Permission.GetEnumMemberValue() + " " + permission.Resource.GetEnumMemberValue();
+                            permission.PermissionName = permission.Permission.GetEnumMemberValue() + " " + permission.Resource.GetEnumMemberValue().ToLower();
                             permission.CreatedAt = ApplicationExtensions.NOW;
                             permission.CreatedBy = action;
                         });

@@ -2,7 +2,7 @@
 {
     public static class CacheSettings
     {
-        public static int EXPIRED_TIME = 1;
+        public static int EXPIRED_TIME = 5;
 
         public static DistributedCacheEntryOptions CACHE_OPTION = new DistributedCacheEntryOptions
         {

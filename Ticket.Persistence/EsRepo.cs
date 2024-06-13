@@ -4,7 +4,7 @@ namespace Ticket.Persistence
 {
     public interface IEsRepo<T>
     {
-        Task<List<T>> GetAll();
+        IElasticClient Client();
 
         Task<IEnumerable<string>> AddOrUpdateBulk(IEnumerable<T> documents);
 
@@ -22,10 +22,9 @@ namespace Ticket.Persistence
             _indexName = typeof(T).Name.ToLower();
         }
 
-        public async Task<List<T>> GetAll()
+        public IElasticClient Client()
         {
-            var searchResponse = await _client.SearchAsync<T>(s => s.Index(_indexName).Query(q => q.MatchAll()));
-            return searchResponse.IsValid ? searchResponse.Documents.ToList() : default;
+            return _client;
         }
 
         public async Task<IEnumerable<string>> AddOrUpdateBulk(IEnumerable<T> documents)

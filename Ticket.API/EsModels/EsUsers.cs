@@ -35,11 +35,6 @@
         public bool LockoutViolationEnabled { get; set; }
 
         /// <summary>
-        /// Trạng thái
-        /// </summary>
-        public string LockStatus { get; set; }
-
-        /// <summary>
         /// Thời gian tạo
         /// </summary>
         public DateTime CreatedAt { get; set; }

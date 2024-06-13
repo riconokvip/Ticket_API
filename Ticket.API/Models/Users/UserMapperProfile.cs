@@ -17,6 +17,8 @@
             CreateMap<UserPermission, UserPermissionEntities>()
                 .ForMember(dest => dest.Claim, act => act.MapFrom(src => src.Permission.FastToString() + src.Resource.FastToString()))
                 .ReverseMap();
+
+            CreateMap<EsUsers, UserResponseModel>().ReverseMap();
         }
     }
 }

@@ -22,7 +22,7 @@
         [HttpGet]
         public async Task<BaseResponseWithPagination<List<UserResponseModel>>> GetAllUser([FromQuery] UserRequestModel model)
         {
-            var res = await _userService.GetUsers(model);
+            var res = await _userService.GetEsUsers(model);
             return SuccessWithPagination(res.Pagination, res.Users);
         }
 
