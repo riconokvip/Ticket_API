@@ -9,7 +9,14 @@ namespace Ticket.API.Services
         /// </summary>
         /// <param name="model">Bộ lọc</param>
         /// <returns></returns>
-        Task<ListUserResponseModel> GetEsUsers(UserRequestModel model);
+        Task<ListUserResponseModel> GetUsers(UserRequestModel model);
+
+        /// <summary>
+        /// Đồng bộ người dùng
+        /// </summary>
+        /// <param name="esUsers">Danh sách người dùng</param>
+        /// <returns></returns>
+        Task SyncUsers(IEnumerable<EsUsers> esUsers);
 
         /// <summary>
         /// Tạo người dùng mới
@@ -28,6 +35,7 @@ namespace Ticket.API.Services
         private readonly IDistributedCacheService _cacheService;
         private readonly IMapper _mapper;
         private readonly string _name = "Người dùng";
+        private readonly string _index = typeof(EsUsers).Name.ToLower();
 
         public UserService(
             ApplicationDbContext context,
@@ -42,50 +50,67 @@ namespace Ticket.API.Services
             _mapper = mapper;
         }
 
-        public async Task<ListUserResponseModel> GetEsUsers(UserRequestModel model)
+        public async Task<ListUserResponseModel> GetUsers(UserRequestModel model)
         {
-            // Get cache
-            var resUserKey = CacheSettings.ResKey(RedisKeys.Users(model.PageIndex, model.PageSize, text));
-            var resUsers = _cacheService.TryGetValue<ListUserResponseModel>(resUserKey, out var _resUsers);
-            if (resUsers)
-                return _resUsers;
-
             var text = string.IsNullOrEmpty(model.TextSearch) ? "" : model.TextSearch.ToLower().Trim();
             var skip = (model.PageIndex - 1) * model.PageSize;
 
-            // Query redis
-            var esUserKey = CacheSettings.EsKey(RedisKeys.EsUsers);
-            var esUsers = _cacheService.TryGetValue<List<UserResponseModel>>(esUserKey, out var _esUsers);
+            var esUserKey = EsKeys.Users(model.PageIndex, model.PageSize, text);
+            var syncUserKey = SyncKeys.Users;
 
-            // Query elastic
-            var esQuery = await _esRepo.Client()
-                                .SearchAsync<EsUsers>(s => 
-                                    s.Index(typeof(EsUsers).Name.ToLower())
-                                    .From(skip)
-                                    .Take(model.PageSize)
-                                    .Query(q => q.Match(m => m.Query(text)))
-                                );
-            var esCount = await _esRepo.Client()
-                                .SearchAsync<EsUsers>(s =>
-                                    s.Index(typeof(EsUsers).Name.ToLower())
-                                    .Query(q => q.Match(m => m.Query(text)))
-                                );
-            var esDatas = _mapper.Map<List<UserResponseModel>>(esQuery.Documents.ToList());
-
-            // Set cache
+            // Response data
             var data = new ListUserResponseModel
             {
-                Users = esUsers ? _esUsers.Concat(esDatas).ToList() : esDatas,
+                Users = new List<UserResponseModel>(),
                 Pagination = new PaginationResponse
                 {
                     PageIndex = model.PageIndex,
                     PageSize = model.PageSize,
-                    Total = esCount.Total
+                    Total = 0
                 }
             };
-            await _cacheService.SetAsync(resUserKey, data, CacheSettings.CACHE_OPTION);
+
+            // Query elastic
+            var esUsers = _cacheService.TryGetValue<EsUserCaches>(esUserKey, out var _esUsers);
+            if (!esUsers)
+            {
+                var esQuery = await _esRepo.Client()
+                                .SearchAsync<EsUsers>(s =>
+                                    s.Index(_index)
+                                    .From(skip)
+                                    .Take(model.PageSize)
+                                    .Sort(s => s.Descending(d => d.CreatedAt))
+                                    .Query(q => q.Match(m => m.Query(text)))
+                                );
+                var esCountQuery = await _esRepo.Client()
+                                .SearchAsync<EsUsers>(s =>
+                                    s.Index(_index)
+                                    .Query(q => q.Match(m => m.Query(text)))
+                                );
+                _esUsers = new EsUserCaches
+                {
+                    EsUsers = esQuery.Documents.ToList(),
+                    Total = esCountQuery.Total
+                };
+                await _cacheService.SetAsync(esUserKey, _esUsers, RedisSettings.CACHE_OPTION);
+            }
+            data.Users.AddRange(_mapper.Map<List<UserResponseModel>>(_esUsers.EsUsers));
+            data.Pagination.Total += _esUsers.Total;
+
+            // Query redis
+            var syncUsers = _cacheService.TryGetValue<List<EsUsers>>(syncUserKey, out var _syncUsers);
+            if (syncUsers)
+            {
+                data.Users.AddRange(_mapper.Map<List<UserResponseModel>>(_syncUsers));
+                data.Pagination.Total += _syncUsers.Count;
+            }
 
             return data;
+        }
+
+        public async Task SyncUsers(IEnumerable<EsUsers> esUsers)
+        {
+            await _esRepo.AddOrUpdateBulk(esUsers);
         }
 
         public async Task CreateUser(UserCreateMapRequestModel model, string action)
@@ -120,6 +145,7 @@ namespace Ticket.API.Services
                     user.CreatedAt = ApplicationExtensions.NOW;
                     user.CreatedBy = action;
                     _context.BulkInsert([user]);
+                    var syncUser = _mapper.Map<EsUsers>(user);
 
                     if (model.Permissions.Count > 0)
                     {
@@ -133,9 +159,24 @@ namespace Ticket.API.Services
                             permission.CreatedBy = action;
                         });
                         _context.BulkInsert(permissions);
+                        syncUser.Roles = _mapper.Map<List<EsUserPermissions>>(permissions);
                     }
 
                     _context.BulkSaveChanges();
+
+                    // Add sync
+                    var syncUserKey = SyncKeys.Users;
+                    var syncUsers = _cacheService.TryGetValue<List<EsUsers>>(syncUserKey, out var _syncUsers);
+                    if (syncUsers)
+                    {
+                        _syncUsers.Add(syncUser);
+                    }
+                    else
+                        _syncUsers = new List<EsUsers>{ syncUser };
+
+                    await _cacheService.SetAsync(syncUserKey, _syncUsers);
+
+                    // transaction commit
                     transaction.Commit();
                 }
                 catch (Exception)

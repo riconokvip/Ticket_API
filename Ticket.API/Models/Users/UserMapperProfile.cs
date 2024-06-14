@@ -18,7 +18,14 @@
                 .ForMember(dest => dest.Claim, act => act.MapFrom(src => src.Permission.FastToString() + src.Resource.FastToString()))
                 .ReverseMap();
 
+            // elastic mapper
+            CreateMap<UserEntities, EsUsers>().ReverseMap();
+
+            CreateMap<UserPermissionEntities, EsUserPermissions>().ReverseMap();
+
             CreateMap<EsUsers, UserResponseModel>().ReverseMap();
+
+            CreateMap<EsUserPermissions, UserPermissionResponse>().ReverseMap();
         }
     }
 }

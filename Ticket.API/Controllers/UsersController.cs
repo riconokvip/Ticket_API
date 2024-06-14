@@ -22,7 +22,7 @@
         [HttpGet]
         public async Task<BaseResponseWithPagination<List<UserResponseModel>>> GetAllUser([FromQuery] UserRequestModel model)
         {
-            var res = await _userService.GetEsUsers(model);
+            var res = await _userService.GetUsers(model);
             return SuccessWithPagination(res.Pagination, res.Users);
         }
 
@@ -35,6 +35,18 @@
         public async Task<BaseResponse> CreateNewUser([FromBody] UserCreateRequestModel model)
         {
             await _userService.CreateUser(_mapper.Map<UserCreateMapRequestModel>(model), User.Identity.Name);
+            return Success();
+        }
+
+        /// <summary>
+        /// Đồng bộ dữ liệu người dùng
+        /// </summary>
+        /// <param name="model">Dữ liệu đồng bộ</param>
+        /// <returns></returns>
+        [HttpPost("sync-es")]
+        public async Task<BaseResponse> SyncExistUser([FromBody] IEnumerable<EsUsers> model)
+        {
+            await _userService.SyncUsers(model);
             return Success();
         }
     }
